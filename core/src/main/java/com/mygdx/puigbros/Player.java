@@ -29,6 +29,10 @@ public class Player extends WalkingCharacter
     boolean rightPressed;  // 键盘右键按下状态
     boolean jumpPressed;   // 键盘跳跃键按下状态
 
+    int bulletCount = 0;
+    static final int MAX_BULLETS = 10;
+    boolean isAttacking = false;
+
     public Player(AssetManager manager)
     {
         setBounds(400,40,48, 112);

@@ -68,6 +68,8 @@ public class PuigBros extends Game
         textBatch.setProjectionMatrix(textCamera.projection);
 
 
+
+
 		setScreen(new LoadingScreen(this));
 	}
 

@@ -1,0 +1,35 @@
+{
+  "textures": {
+    "background": "BG.png",
+    "gui": {
+      "button": ["gui/Button-off.png", "gui/Button-on.png"],
+      "left": ["gui/Left-off.png", "gui/Left-on.png"],
+      "right": ["gui/Right-off.png", "gui/Right-on.png"],
+      "jump": ["gui/Jump-off.png", "gui/Jump-on.png"],
+      "pause": ["gui/Pause-off.png", "gui/Pause-on.png"]
+    },
+    "player": {
+      "idle": ["player/Idle ({index}).png", 10],
+      "run": ["player/Run ({index}).png", 8],
+      "jump": ["player/Jump ({index}).png", 12],
+      "dead": ["player/Dead ({index}).png", 10],
+      "hurt": ["player/Hurt ({index}).png", 8],
+      "slide": ["player/Slide ({index}).png", 5]
+    },
+    "dino": {
+      "walk": ["dino/Walk ({index}).png", 10],
+      "dead": ["dino/Dead ({index}).png", 8]
+    },
+    "powerup": ["powerup/frame000{index}.png", 7],
+    "tiles": ["tiles/{index}.png", 18],
+    "bullets": ["bullets/bullet ({index}).png", 2]
+  },
+  "sounds": {
+    "music": "sound/music.mp3",
+    "loseLife": "sound/loselife.wav",
+    "kill": "sound/kill.wav",
+    "jump": "sound/jump.wav",
+    "powerup": "sound/powerup.wav",
+    "levelComplete": "sound/levelcomplete.wav"
+  }
+}
