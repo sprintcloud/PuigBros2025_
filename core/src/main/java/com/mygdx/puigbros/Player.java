@@ -44,6 +44,7 @@ public class Player extends WalkingCharacter
     public void setJoypad(ButtonLayout joypad) {
         this.joypad = joypad;
     }
+
     @Override
     public void act(float delta) {
         super.act(delta);
@@ -77,7 +78,7 @@ public class Player extends WalkingCharacter
         {
             boolean useKeyboardLeft = leftPressed || joypad.isPressed("Left");   // 键盘左键或摇杆左
             boolean useKeyboardRight = rightPressed || joypad.isPressed("Right");// 键盘右键或摇杆右
-            boolean useKeyboardJump = jumpPressed && isOnGround;
+            boolean useKeyboardJump = jumpPressed || joypad.consumePush("Jump") && isOnGround;
 
             if(invulnerability > 0.f)
                 invulnerability -= delta;
@@ -117,6 +118,8 @@ public class Player extends WalkingCharacter
                 currentFrame = manager.get("player/Run ("+(int)(animationFrame+1)+").png", Texture.class);
 
             }
+
+            //System.out.println(falling);
 
             if (!falling && useKeyboardJump) {
                 jump(1.f);
