@@ -7,10 +7,11 @@ public class LevelJson
     private int mapWidth;
     private int mapHeight;
 
-    private byte tileMap[][];
+    private byte[][] tileMap;
 
     private ArrayList<EnemyJson> enemies;
     private ArrayList<CollectableJson> collectables;
+    private ArrayList<AmmoBoxJson> ammoBoxes;
 
     public LevelJson()
     {
@@ -23,6 +24,8 @@ public class LevelJson
         this.tileMap = tileMap;
 
         enemies = new ArrayList<>();
+        collectables = new ArrayList<>();
+        ammoBoxes = new ArrayList<>();
     }
 
     public int getMapWidth() {
@@ -70,4 +73,15 @@ public class LevelJson
         this.collectables = collectables;
     }
 
+    public ArrayList<AmmoBoxJson> getAmmoBoxes() {
+        return ammoBoxes;
+    }
+
+    public void setAmmoBoxes(ArrayList<AmmoBoxJson> ammoBoxes) {
+        this.ammoBoxes = ammoBoxes;
+    }
+
+    public void addAmmoBoxes(AmmoBoxJson ammoBox){
+        ammoBoxes.add(ammoBox);
+    }
 }

@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.mygdx.puigbros.jsonloaders.AmmoBoxJson;
 import com.mygdx.puigbros.jsonloaders.CollectableJson;
 import com.mygdx.puigbros.jsonloaders.EnemyJson;
 import com.mygdx.puigbros.jsonloaders.LevelJson;
@@ -56,7 +57,7 @@ public class GameScreen implements Screen, InputProcessor {
 
         // Init game entities
         stage = new Stage();
-        player = new Player(game.manager);
+        player = new Player(game.manager, stage);
         enemies = new ArrayList<>();
         collectables = new ArrayList<>();
         player.setMap(tileMap);
@@ -76,7 +77,18 @@ public class GameScreen implements Screen, InputProcessor {
         LevelJson l = json.fromJson(LevelJson.class, scores);
         tileMap.loadFromLevel(l);
 
-        // Init enemies from json level file
+        for (AmmoBoxJson ammoBoxJson : l.getAmmoBoxes()){
+            float x = ammoBoxJson.getX();
+            float y = ammoBoxJson.getY();
+
+            AmmoBox ammoBox = new AmmoBox(x * tileMap.TILE_SIZE, y * tileMap.TILE_SIZE, game.manager);
+            ammoBox.setMap(tileMap);
+            ammoBox.updateScrollOffset();
+
+            stage.addActor(ammoBox);
+            collectables.add(ammoBox);
+        }
+            // Init enemies from json level file
         for(int i = 0; i < l.getEnemies().size(); i++)
         {
             EnemyJson e = l.getEnemies().get(i);
@@ -147,10 +159,10 @@ public class GameScreen implements Screen, InputProcessor {
         }
         else
         {
-            // Draw GUI
-            joypad.render(game.batch, game.textBatch);
             game.textBatch.begin();
+            // Draw GUI
             game.mediumFont.draw(game.textBatch, "Vides: " + game.lives, 40,460);
+            game.mediumFont.draw(game.textBatch, "Bullets: " + player.getBulletCount(),320,460);
             // Debug touch pointers
             /*for(Integer i : joypad.pointers.keySet())
             {
@@ -158,6 +170,7 @@ public class GameScreen implements Screen, InputProcessor {
                 game.mediumFont.draw(game.textBatch, "Pointer "+i+": " + action+" ("+(int)joypad.buttons.get(action).debug_x+","+(int)joypad.buttons.get(action).debug_y+")", 40, 400 - i*40);
             }*/
             game.textBatch.end();
+            joypad.render(game.batch, game.textBatch);
         }
 
 
@@ -215,11 +228,6 @@ public class GameScreen implements Screen, InputProcessor {
                     if(player.hasInvulnerability()) {
                       // Kill enemies if invulnerable
                       wc.kill();
-                    } else if (player.getY() + player.getHeight()*0.5f < wc.getY() - wc.getHeight()*0.25f &&
-                        player.isFalling() && player.getSpeed().y > 0.f) {
-                        // Kill enemies by jumping over them
-                        player.jump(0.5f);
-                        wc.kill();
                     } else {
                         // Lose a life
                         game.manager.get("sound/music.mp3", Music.class).stop();
@@ -235,14 +243,22 @@ public class GameScreen implements Screen, InputProcessor {
         {
             Actor collectable = collectables.get(i);
             Rectangle rect_coll = new Rectangle(collectable.getX(), collectable.getY(), collectable.getWidth(), collectable.getHeight());
+            if (collectable instanceof AmmoBox)
+                ((AmmoBox) collectable).updateScrollOffset();
 
             if (rect_coll.overlaps(rect_player))
             {
-                // Give invulnerability
-                player.getInvulnerability();
+                if (collectable instanceof AmmoBox) {
+                    AmmoBox ammoBox = (AmmoBox) collectable;
+                    int ammoGained = ammoBox.getAmmoCount();
+                    player.addBullet(ammoGained);
+                    game.manager.get("sound/powerup.wav", Sound.class).play();
+                }else if (collectable instanceof PowerUp){
+                    player.getInvulnerability();
+                    game.manager.get("sound/powerup.wav", Sound.class).play();
+                }
                 collectable.remove();
                 collectables.remove(collectable);
-                game.manager.get("sound/powerup.wav", Sound.class).play();
             }
         }
 

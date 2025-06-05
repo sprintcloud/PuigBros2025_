@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 
 public class Player extends WalkingCharacter
 {
@@ -16,29 +17,27 @@ public class Player extends WalkingCharacter
     static final float STOP_SPEED = 5f;
     static final float RUN_ACCELERATION = 200f;
     static final float INVULNERABILITY_DURATION = 20f;
-
+    static final int MAX_BULLETS = 10;
     AssetManager manager;
     ButtonLayout joypad;
-
     Texture currentFrame;
-
+    Stage stage;
+    int bulletCount;
     float animationFrame = 0;
     float invulnerability = 0f;
     boolean isOnGround;
-    boolean leftPressed;   // 键盘左键按下状态
-    boolean rightPressed;  // 键盘右键按下状态
-    boolean jumpPressed;   // 键盘跳跃键按下状态
+    boolean leftPressed;
+    boolean rightPressed;
+    boolean jumpPressed;
+    boolean attackPressed;
 
-    int bulletCount = 0;
-    static final int MAX_BULLETS = 10;
-    boolean isAttacking = false;
-
-    public Player(AssetManager manager)
+    public Player(AssetManager manager, Stage stage)
     {
         setBounds(400,40,48, 112);
         this.manager = manager;
         currentFrame = manager.get("player/Idle (1).png", Texture.class);
         invulnerability = 0.f;
+        this.stage = stage;
     }
 
     public void setJoypad(ButtonLayout joypad) {
@@ -48,6 +47,8 @@ public class Player extends WalkingCharacter
     @Override
     public void act(float delta) {
         super.act(delta);
+
+        updateAttack();
 
         // Fall too low
         if(getY() > map.height * TileMap.TILE_SIZE)
@@ -237,4 +238,32 @@ public class Player extends WalkingCharacter
         int floorY = TileMap.nearestFloor((int) (getX() - getWidth() / 2), (int) bottomY);
         isOnGround = (floorY <= bottomY);
     }
+
+    public void updateAttack(){
+        attackPressed = joypad.isPressed("Attack");
+        if (attackPressed && bulletCount > 0){
+            fireBullet();
+            bulletCount--;
+        }
+    }
+
+    private void fireBullet(){
+        boolean isMovingRight = !lookLeft;
+        Bullet bullet = new Bullet(
+            getX() + (isMovingRight ? getWidth() : 0),
+            getY() + getHeight() / 2,
+            isMovingRight
+        );
+        stage.addActor(bullet);
+    }
+
+    public void addBullet(int amount) {
+        bulletCount = Math.min(bulletCount + amount, MAX_BULLETS);
+        System.out.println(bulletCount);
+    }
+
+    public int getBulletCount(){
+        return bulletCount;
+    }
+
 }

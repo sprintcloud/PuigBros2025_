@@ -1,8 +1,11 @@
 package com.mygdx.puigbros;
 
+import static com.badlogic.gdx.graphics.g3d.particles.ParticleChannels.TextureRegion;
+
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -13,15 +16,14 @@ public class Dino extends WalkingCharacter
     static final float RUN_SPEED = 120f;
     static final float RUN_ACCELERATION = 200f;
     static final float DISCOVER_DISTANCE = 500f;
-
     AssetManager manager;
-    Texture currentFrame;
+    Texture currentFrame, whitePixelTexture;
     Player player;
-
     boolean discovered;
-
     float animationFrame = 0;
-
+    int health = 0;
+    float healthBarWidth = 120f;
+    float healthBarHeight = 15f;
     public Dino(int x, int y, AssetManager manager, Player player)
     {
         setBounds(x,y,64, 116);
@@ -30,6 +32,12 @@ public class Dino extends WalkingCharacter
         currentFrame = manager.get("dino/Walk (1).png", Texture.class);
         lookLeft = true;
         discovered = false;
+
+        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmap.setColor(0.2f, 0.8f, 0.2f, 1f);
+        pixmap.fill();
+        whitePixelTexture = new Texture(pixmap);
+        pixmap.dispose();
     }
 
     @Override
@@ -39,7 +47,6 @@ public class Dino extends WalkingCharacter
         if(!discovered) return;
 
         super.act(delta);
-
         if(dead)
         {
             animationFrame += delta * 6.f;
@@ -115,6 +122,31 @@ public class Dino extends WalkingCharacter
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
 
+        float healthPercent = Math.max(0, (float) health / 100f);
+
+        float barX = getX() - healthBarWidth / 2 - map.scrollX;
+        float barY = getY() + getHeight() / 2 + 20;
+
+        batch.setColor(0.3f, 0.3f, 0.3f, 0.8f);
+        batch.draw(
+            whitePixelTexture,
+            barX, barY,
+            healthBarWidth, healthBarHeight,
+            0,0,1,1,
+            false,false
+        );
+
+        batch.setColor(0.2f, 0.8f, 0.2f, 0.9f);
+        batch.draw(
+            whitePixelTexture, // 或使用占位纹理
+            barX, barY,
+            healthBarWidth * healthPercent, healthBarHeight,
+            0,0,1,1,
+            false,false
+        );
+
+        batch.setColor(1f, 1f, 1f, 1f);
+
         batch.draw(currentFrame, getX() - getWidth()*0.5f - map.scrollX - (lookLeft ? 44 : 12), getY() - getHeight()*0.5f, 128, 128, 0, 0, 680, 472, lookLeft, true);
     }
 
@@ -126,5 +158,19 @@ public class Dino extends WalkingCharacter
         shapes.setColor(Color.GREEN);
         shapes.rect(getX() - getWidth()*0.5f - map.scrollX, getY() - getHeight()*0.5f, getWidth(), getHeight());
         shapes.end();
+    }
+
+    public void takeDamage(int damage){
+        health -= damage;
+        if (health <= 0){
+            health = 0;
+            kill();
+        }
+    }
+
+    @Override
+    public boolean remove() {
+        whitePixelTexture.dispose();
+        return super.remove();
     }
 }

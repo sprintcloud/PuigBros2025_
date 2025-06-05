@@ -41,6 +41,9 @@ public class LoadingScreen implements Screen {
         manager.load("gui/Jump-on.png", Texture.class);
         manager.load("gui/Pause-off.png", Texture.class);
         manager.load("gui/Pause-on.png", Texture.class);
+        manager.load("gui/fire_bullets_off.png", Texture.class);
+        manager.load("gui/fire_bullets_on.png", Texture.class);
+        manager.load("bullets/bullet (1).png", Texture.class);
 
 
         // Player
