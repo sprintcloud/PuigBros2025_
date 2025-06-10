@@ -9,8 +9,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 
-import jdk.tools.jmod.Main;
-
 public class LoadingScreen implements Screen {
 
     PuigBros game;

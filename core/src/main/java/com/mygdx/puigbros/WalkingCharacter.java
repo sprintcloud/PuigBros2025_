@@ -117,5 +117,9 @@ public class WalkingCharacter extends GameEntity {
         return dead;
     }
 
+    public void takeDamage (int damage){
+
+    }
+
 
 }

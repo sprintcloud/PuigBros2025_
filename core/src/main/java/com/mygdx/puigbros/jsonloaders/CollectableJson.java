@@ -5,6 +5,7 @@ public class CollectableJson
     private int x;
     private int y;
     private String type;
+    private int[] count;
 
     public CollectableJson()
     {
@@ -33,4 +34,11 @@ public class CollectableJson
         this.type = type;
     }
 
+    public int[] getCount() {
+        return count;
+    }
+
+    public void setCount(int[] count) {
+        this.count = count;
+    }
 }

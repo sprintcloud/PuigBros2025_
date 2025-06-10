@@ -1,5 +1,6 @@
 package com.mygdx.puigbros;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
@@ -17,7 +18,7 @@ public class Player extends WalkingCharacter
     static final float STOP_SPEED = 5f;
     static final float RUN_ACCELERATION = 200f;
     static final float INVULNERABILITY_DURATION = 20f;
-    static final int MAX_BULLETS = 10;
+    static final int MAX_BULLETS = 20;
     AssetManager manager;
     ButtonLayout joypad;
     Texture currentFrame;
@@ -30,6 +31,7 @@ public class Player extends WalkingCharacter
     boolean rightPressed;
     boolean jumpPressed;
     boolean attackPressed;
+
 
     public Player(AssetManager manager, Stage stage)
     {
@@ -47,8 +49,6 @@ public class Player extends WalkingCharacter
     @Override
     public void act(float delta) {
         super.act(delta);
-
-        updateAttack();
 
         // Fall too low
         if(getY() > map.height * TileMap.TILE_SIZE)
@@ -80,6 +80,12 @@ public class Player extends WalkingCharacter
             boolean useKeyboardLeft = leftPressed || joypad.isPressed("Left");   // 键盘左键或摇杆左
             boolean useKeyboardRight = rightPressed || joypad.isPressed("Right");// 键盘右键或摇杆右
             boolean useKeyboardJump = jumpPressed || joypad.consumePush("Jump") && isOnGround;
+            boolean useKeyboardAttack = attackPressed || joypad.consumePush("Attack");
+
+            if (useKeyboardAttack){
+                fireBullet();
+            }
+
 
             if(invulnerability > 0.f)
                 invulnerability -= delta;
@@ -120,7 +126,6 @@ public class Player extends WalkingCharacter
 
             }
 
-            //System.out.println(falling);
 
             if (!falling && useKeyboardJump) {
                 jump(1.f);
@@ -233,33 +238,23 @@ public class Player extends WalkingCharacter
 
     public void updateGroundState() {
         float bottomY = getY() + getHeight() / 2f;
-        int mapX = (int) (getX() / TileMap.TILE_SIZE);
-        mapX = Math.max(0, Math.min(mapX, TileMap.width - 1));
         int floorY = TileMap.nearestFloor((int) (getX() - getWidth() / 2), (int) bottomY);
         isOnGround = (floorY <= bottomY);
     }
 
-    public void updateAttack(){
-        attackPressed = joypad.isPressed("Attack");
-        if (attackPressed && bulletCount > 0){
-            fireBullet();
-            bulletCount--;
-        }
-    }
-
     private void fireBullet(){
+        if (bulletCount <= 0) return;
         boolean isMovingRight = !lookLeft;
-        Bullet bullet = new Bullet(
-            getX() + (isMovingRight ? getWidth() : 0),
-            getY() + getHeight() / 2,
-            isMovingRight
-        );
+
+        float startX = isMovingRight ? getX() + getWidth() : getX(); // 右侧边缘或左侧边缘
+        float startY = getY() + getHeight() / 2f; // 玩家中心Y坐标
+        Bullet bullet = new Bullet(startX, startY, isMovingRight, manager, map);
         stage.addActor(bullet);
+        bulletCount--;
     }
 
     public void addBullet(int amount) {
         bulletCount = Math.min(bulletCount + amount, MAX_BULLETS);
-        System.out.println(bulletCount);
     }
 
     public int getBulletCount(){

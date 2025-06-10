@@ -6,28 +6,30 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public class AmmoBox extends Actor {
-    private static final int MIN_AMMO = 2;
-    private static final int MAX_AMMO = 5;
-    private Texture texture;
+    private int MIN_AMMO;
+    private int MAX_AMMO;
+    private AssetManager manager;
     private TileMap map;
-    private float scrollOffsetX;
 
-
-    public AmmoBox(float x, float y, AssetManager manager){
+    public AmmoBox(float x, float y, AssetManager manager, int[] count){
         setBounds(x, y, 32, 32);
-        this.texture = manager.get("bullets/bullet (2).png");
-        this.scrollOffsetX = 0f;
+        MIN_AMMO = count[0];
+        MAX_AMMO = count[1];
+        this.manager = manager;
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
         batch.draw(
-            texture,
-            getX() - getWidth() / 2 - scrollOffsetX,
-            getY() - getHeight() / 2,
-            getWidth(), getHeight()
+            manager.get("bullets/bullet (2).png", Texture.class),
+            getX() - getWidth() * 0.5f - map.scrollX,
+            getY() - getHeight() * 0.5f,
+            32, 32,
+            0, 0,
+            200, 196, false, true
         );
+
     }
 
     public int getAmmoCount(){
@@ -35,10 +37,5 @@ public class AmmoBox extends Actor {
     }
     public void setMap(TileMap map) {
         this.map = map;
-    }
-    public void updateScrollOffset() {
-        if (map != null) {
-            scrollOffsetX = map.scrollX;
-        }
     }
 }

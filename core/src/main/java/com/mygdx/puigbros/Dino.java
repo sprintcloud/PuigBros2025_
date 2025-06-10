@@ -9,6 +9,10 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+
+import java.util.Random;
 
 public class Dino extends WalkingCharacter
 {
@@ -16,12 +20,13 @@ public class Dino extends WalkingCharacter
     static final float RUN_SPEED = 120f;
     static final float RUN_ACCELERATION = 200f;
     static final float DISCOVER_DISTANCE = 500f;
+    private static final Random random = new Random();
     AssetManager manager;
     Texture currentFrame, whitePixelTexture;
     Player player;
     boolean discovered;
     float animationFrame = 0;
-    int health = 0;
+    int health = 100;
     float healthBarWidth = 120f;
     float healthBarHeight = 15f;
     public Dino(int x, int y, AssetManager manager, Player player)
@@ -47,6 +52,35 @@ public class Dino extends WalkingCharacter
         if(!discovered) return;
 
         super.act(delta);
+
+        if (!dead && !falling) {
+            for (Actor actor : getStage().getActors()) {
+                if (actor instanceof Bullet) {
+                    Bullet bullet = (Bullet) actor;
+
+                    float dinoLeft = getX() - getWidth() / 2f;
+                    float dinoBottom = getY() - getHeight() / 2f;
+                    Rectangle dinoRect = new Rectangle(dinoLeft, dinoBottom, getWidth(), getHeight());
+
+                    float bulletCenterX = bullet.getWorldX();
+                    float bulletCenterY = bullet.getWorldY();
+                    float bulletRadius = 16f;
+                    Rectangle bulletRect = new Rectangle(
+                        bulletCenterX - bulletRadius,
+                        bulletCenterY - bulletRadius,
+                        bulletRadius * 2f,
+                        bulletRadius * 2f
+                    );
+
+                    if (dinoRect.overlaps(bulletRect)) {
+                        int damage = random.nextInt(20) + 20;
+                        takeDamage(damage);
+                        bullet.remove();
+                        break;
+                    }
+                }
+            }
+        }
         if(dead)
         {
             animationFrame += delta * 6.f;

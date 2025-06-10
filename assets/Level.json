@@ -26,12 +26,24 @@
       "type": "PowerUp",
       "x": 21,
       "y": 1
-    }
-  ],
-  "ammoBoxes" : [
+    },
     {
+      "type": "ammoBoxes",
       "x": 10,
-      "y": 3
+      "y": 1,
+      "count" : [5,10]
+    },
+    {
+      "type": "ammoBoxes",
+      "x": 11,
+      "y": 1,
+      "count" : [5,10]
+    },
+    {
+      "type": "ammoBoxes",
+      "x": 12,
+      "y": 1,
+      "count" : [2,5]
     }
   ],
   "mapHeight": 8,

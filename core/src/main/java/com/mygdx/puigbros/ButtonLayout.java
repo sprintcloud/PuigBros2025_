@@ -85,7 +85,6 @@ public class ButtonLayout implements InputProcessor {
     {
         Button b = new Button(x, y, sx, sy, action, text, imageOn, imageOff);
         buttons.put(action, b);
-        System.out.println(buttons.toString());
     }
 
     boolean isPressed(String action)

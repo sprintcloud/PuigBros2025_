@@ -15,12 +15,12 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.mygdx.puigbros.jsonloaders.AmmoBoxJson;
 import com.mygdx.puigbros.jsonloaders.CollectableJson;
 import com.mygdx.puigbros.jsonloaders.EnemyJson;
 import com.mygdx.puigbros.jsonloaders.LevelJson;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class GameScreen implements Screen, InputProcessor {
 
@@ -36,8 +36,7 @@ public class GameScreen implements Screen, InputProcessor {
     boolean paused;
     private InputMultiplexer inputMultiplexer;
 
-    private boolean leftPressed, rightPressed, jumpPressed = false;
-
+    private boolean leftPressed, rightPressed, jumpPressed, isAttackPressed = false;
 
 
     public GameScreen(PuigBros game)
@@ -77,17 +76,6 @@ public class GameScreen implements Screen, InputProcessor {
         LevelJson l = json.fromJson(LevelJson.class, scores);
         tileMap.loadFromLevel(l);
 
-        for (AmmoBoxJson ammoBoxJson : l.getAmmoBoxes()){
-            float x = ammoBoxJson.getX();
-            float y = ammoBoxJson.getY();
-
-            AmmoBox ammoBox = new AmmoBox(x * tileMap.TILE_SIZE, y * tileMap.TILE_SIZE, game.manager);
-            ammoBox.setMap(tileMap);
-            ammoBox.updateScrollOffset();
-
-            stage.addActor(ammoBox);
-            collectables.add(ammoBox);
-        }
             // Init enemies from json level file
         for(int i = 0; i < l.getEnemies().size(); i++)
         {
@@ -111,6 +99,13 @@ public class GameScreen implements Screen, InputProcessor {
                 p.setMap(tileMap);
                 collectables.add(p);
                 stage.addActor(p);
+            }
+
+            if (c.getType().equals("ammoBoxes")){
+                AmmoBox a = new AmmoBox(c.getX() * tileMap.TILE_SIZE, c.getY() * tileMap.TILE_SIZE, game.manager, c.getCount());
+                a.setMap(tileMap);
+                stage.addActor(a);
+                collectables.add(a);
             }
         }
 
@@ -228,6 +223,7 @@ public class GameScreen implements Screen, InputProcessor {
                     if(player.hasInvulnerability()) {
                       // Kill enemies if invulnerable
                       wc.kill();
+                      wc.takeDamage(100);
                     } else {
                         // Lose a life
                         game.manager.get("sound/music.mp3", Music.class).stop();
@@ -243,8 +239,6 @@ public class GameScreen implements Screen, InputProcessor {
         {
             Actor collectable = collectables.get(i);
             Rectangle rect_coll = new Rectangle(collectable.getX(), collectable.getY(), collectable.getWidth(), collectable.getHeight());
-            if (collectable instanceof AmmoBox)
-                ((AmmoBox) collectable).updateScrollOffset();
 
             if (rect_coll.overlaps(rect_player))
             {
@@ -265,6 +259,7 @@ public class GameScreen implements Screen, InputProcessor {
         player.leftPressed = leftPressed;
         player.rightPressed = rightPressed;
         player.jumpPressed = jumpPressed;
+        player.attackPressed = isAttackPressed;
 
         // Lose life
         if (player.isDead() && player.getAnimationFrame() >= 25.f) {
@@ -322,10 +317,15 @@ public class GameScreen implements Screen, InputProcessor {
             case Input.Keys.D:
                 rightPressed = true;
                 break;
-            case Input.Keys.SPACE:
+            case Input.Keys.W:
             case Input.Keys.UP:
                 jumpPressed = true;
                 break;
+            case Input.Keys.SPACE:
+            case Input.Keys.NUMPAD_ENTER:
+                isAttackPressed = true;
+                break;
+
         }
         return true;
     }
@@ -341,9 +341,13 @@ public class GameScreen implements Screen, InputProcessor {
             case Input.Keys.D:
                 rightPressed = false;
                 break;
-            case Input.Keys.SPACE:
+            case Input.Keys.W:
             case Input.Keys.UP:
-                    jumpPressed = false;
+                jumpPressed = false;
+                break;
+            case Input.Keys.SPACE:
+            case Input.Keys.NUMPAD_ENTER:
+                isAttackPressed = false;
                 break;
         }
         return true;
